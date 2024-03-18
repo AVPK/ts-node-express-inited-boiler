@@ -1,15 +1,31 @@
-import { Router, Request, Response } from 'express';
+import { Router } from 'express';
+import {
+  createUserController,
+  deleteUserController,
+  getUserByIdController,
+  getUsersController,
+  updateUserController
+} from '../controllers/users.controllers';
+import {
+  validateUser
+} from '../utils/validators/users.validations';
 
 // New Router instance
 const router = Router();
 
 // Users routes
-router.get('/', (req: Request, res: Response) => {
-  res.send('Users route!');
-});
-
-router.get('/:id', (req: Request, res: Response) => {
-  res.send(`User ${req.params.id} route!`);
-});
+router.get('/', getUsersController);
+router.get('/:id', getUserByIdController);
+router.post(
+  '/', // path
+  validateUser, // middleware
+  createUserController // controller
+);
+router.put(
+  '/:id', // path
+  validateUser, // middleware
+  updateUserController // controller
+);
+router.delete('/:id', deleteUserController);
 
 export default router;
