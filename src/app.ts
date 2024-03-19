@@ -8,14 +8,15 @@ import { Pool, Client } from "pg";
 
 const port = process.env.PORT || 5000;
 
-const pool = new Pool({
-  user: process.env.DBUSER,
-  host: process.env.DBHOST,
-  password: process.env.DBPASSWORD,
-  database: process.env.DATABASE,
-  port: Number(process.env.DBPORT || 5001),
-});
+// const pool = new Pool({
+//   user: process.env.DBUSER,
+//   host: process.env.DBHOST,
+//   password: process.env.DBPASSWORD,
+//   database: process.env.DATABASE,
+//   port: Number(process.env.DBPORT || 5001),
+// });
 
+const pool = new Pool({connectionString: process.env.DEV_SPARK_SHADOW_DB})
 
 // Create Express server new Express Instance
 const app = express();
@@ -33,33 +34,23 @@ app.use(express.json()); // <=== Enable JSON body parser
     const response = await client.query("SELECT current_user");
     const { rows } = response;
     const currentUser = rows[0]["current_user"];
-    console.log(currentUser); // postgres
+    console.log(`🚀 ~ PostgreSql DB Connected by User: ${currentUser}`);
   } catch (err) {
     console.log(err);
   } finally {
     client.release();
   }
-});
-
-// (async () => {
-//   try {
-//     const response = await pool.query("SELECT current_user");
-//     const {rows} = response;
-//     const currentUser = rows[0]['current_user'];
-//     console.log(currentUser);  // postgres
-// } catch (err) {
-//     console.log(err);
-// }
-// })();
+})();
 
 // Use routes
 app.use("/", router);
 
 // Start Express server
-app.listen(port, () => {
+const server = app.listen(port, () => {
   // Callback function when server is successfully started
-  console.log(`Server started at http://localhost:${port}`);
+  console.log(`🚀 ~ Server started at http://localhost:${port}`);
 });
 
-// Export Express app
+server.on('error', (err) => console.log(err.message));
+
 export default app;
